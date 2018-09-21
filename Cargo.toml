@@ -1,0 +1,23 @@
+[dependencies]
+colored = '1.6.1'
+toml = '0.4.6'
+
+[package]
+authors = ['Kai Schmidt <kaikaliischmidt@gmail.com>']
+categories = [
+    'command-line-utilities',
+    'development-tools::cargo-plugins',
+]
+description = 'A simple tool which replaces all version wildcards ("*") in your `Cargo.toml` with the newest version of the crate. It can also upgrade dependencies that already have versions.'
+keywords = [
+    'cargo',
+    'stabilize',
+    'wildcard',
+    'version',
+    'tool',
+]
+license = 'MIT'
+name = 'cargo-stabilize'
+readme = 'readme.md'
+repository = 'https://github.com/kaikalii/cargo-stabilize'
+version = '0.1.0'
