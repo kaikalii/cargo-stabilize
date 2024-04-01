@@ -6,7 +6,7 @@ use std::{env, fs, process::Command};
 use colored::*;
 
 fn get_version(crate_name: &str) -> Result<String, String> {
-    if let Ok(resp) = Command::new("cargo").arg("search").arg(crate_name).output() {
+    if let Ok(resp) = Command::new("cargo").arg("search").arg("--registry").arg("crates-io").arg(crate_name).output() {
         let resp_string = String::from_utf8_lossy(&resp.stdout)
             .to_owned()
             .split("\n...")
