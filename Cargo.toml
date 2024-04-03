@@ -5,20 +5,20 @@ toml = '0.8.12'
 [package]
 authors = ['Kai Schmidt <kaikaliischmidt@gmail.com>']
 categories = [
-    'command-line-utilities',
-    'development-tools::cargo-plugins',
+  'command-line-utilities',
+  'development-tools::cargo-plugins',
 ]
 description = 'A simple tool which replaces all version wildcards ("*") in your `Cargo.toml` with the newest version of the crate. It can also upgrade dependencies that already have versions.'
 edition = '2021'
 keywords = [
-    'cargo',
-    'stabilize',
-    'wildcard',
-    'version',
-    'tool',
+  'cargo',
+  'stabilize',
+  'wildcard',
+  'version',
+  'tool',
 ]
 license = 'MIT'
 name = 'cargo-stabilize'
 readme = 'readme.md'
 repository = 'https://github.com/kaikalii/cargo-stabilize'
-version = '0.1.0'
+version = '0.2.0'
