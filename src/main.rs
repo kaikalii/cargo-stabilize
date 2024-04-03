@@ -1,14 +1,16 @@
-extern crate colored;
-extern crate toml;
-
 use std::{env, fs, process::Command};
 
 use colored::*;
 
 fn get_version(crate_name: &str) -> Result<String, String> {
-    if let Ok(resp) = Command::new("cargo").arg("search").arg("--registry").arg("crates-io").arg(crate_name).output() {
+    if let Ok(resp) = Command::new("cargo")
+        .arg("search")
+        .arg("--registry")
+        .arg("crates-io")
+        .arg(crate_name)
+        .output()
+    {
         let resp_string = String::from_utf8_lossy(&resp.stdout)
-            .to_owned()
             .split("\n...")
             .next()
             .unwrap()
@@ -30,7 +32,7 @@ fn get_version(crate_name: &str) -> Result<String, String> {
     }
 }
 
-static USAGE_STRING: &'static str = "\
+static USAGE_STRING: &str = "\
 Usage:
     cargo stabilize [flags]
 
@@ -52,30 +54,28 @@ fn main() {
     }
 
     // Read in the Cargo.toml
-    match fs::read("Cargo.toml") {
+    match fs::read_to_string("Cargo.toml") {
         // Parse into toml::Value
-        Ok(cargo_toml) => match toml::from_slice::<toml::Value>(&cargo_toml) {
+        Ok(cargo_toml) => match toml::from_str::<toml::Value>(&cargo_toml) {
             Ok(mut cargo_toml_value) => {
                 // Ensure that the toml::Value is a table
-                if let toml::Value::Table(ref mut map) = cargo_toml_value {
+                if let toml::Value::Table(map) = &mut cargo_toml_value {
                     // Look for the dependencies
                     if let Some(dependencies) = map.get_mut("dependencies") {
                         // Ensure that the dependencies are a table
-                        if let toml::Value::Table(ref mut map) = dependencies {
+                        if let toml::Value::Table(map) = dependencies {
                             let mut stabilized = 0;
                             let mut upgraded = 0;
                             // Iterate through each dependency
                             for (crate_name, dep_value) in map {
                                 // Get the version string
                                 let version = match dep_value {
-                                    toml::Value::String(ref mut s) => Some(s),
-                                    toml::Value::Table(ref mut table) => {
-                                        if let Some(version) = table.get_mut("version") {
-                                            if let toml::Value::String(ref mut s) = version {
-                                                Some(s)
-                                            } else {
-                                                None
-                                            }
+                                    toml::Value::String(s) => Some(s),
+                                    toml::Value::Table(table) => {
+                                        if let Some(toml::Value::String(s)) =
+                                            table.get_mut("version")
+                                        {
+                                            Some(s)
                                         } else {
                                             None
                                         }
@@ -88,20 +88,22 @@ fn main() {
                                     if version == "*" || upgrade {
                                         match get_version(crate_name) {
                                             // Don't change versions that are already the newest
-                                            Ok(ver) => if version != &ver {
-                                                println!(
-                                                    "{}: {} -> {}",
-                                                    crate_name.bright_yellow(),
-                                                    version.cyan(),
-                                                    ver.bright_cyan()
-                                                );
-                                                if version == "*" {
-                                                    stabilized += 1;
-                                                } else if upgrade {
-                                                    upgraded += 1;
+                                            Ok(ver) => {
+                                                if version != &ver {
+                                                    println!(
+                                                        "{}: {} -> {}",
+                                                        crate_name.bright_yellow(),
+                                                        version.cyan(),
+                                                        ver.bright_cyan()
+                                                    );
+                                                    if version == "*" {
+                                                        stabilized += 1;
+                                                    } else if upgrade {
+                                                        upgraded += 1;
+                                                    }
+                                                    *version = ver;
                                                 }
-                                                *version = ver;
-                                            },
+                                            }
                                             Err(e) => println!("{}", e),
                                         }
                                     }
@@ -145,7 +147,8 @@ fn main() {
                 fs::write(
                     "Cargo.toml",
                     toml::to_string_pretty(&cargo_toml_value).unwrap(),
-                ).unwrap_or_else(|e| println!("{}", e));
+                )
+                .unwrap_or_else(|e| println!("{}", e));
             }
             Err(e) => println!("{}", e),
         },
