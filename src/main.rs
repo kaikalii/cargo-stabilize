@@ -38,16 +38,19 @@ Usage:
 
 Flags:
     -h | --help     Display usage information
+    --specific      Set specific version with prefix '='
     --upgrade       Upgrade all dependency versions to the newest,
                     not just wilcards
 ";
 
 fn main() {
     // Read command-line arguments
+    let mut specific = false;
     let mut upgrade = false;
     for arg in env::args().skip_while(|s| s != "stabilize").skip(1) {
         match arg.as_ref() {
             "-h" | "--help" => println!("{}", USAGE_STRING),
+            "--specific" => specific = true,
             "--upgrade" => upgrade = true,
             _ => println!("Unknown command\n{}", USAGE_STRING),
         }
@@ -101,7 +104,11 @@ fn main() {
                                                     } else if upgrade {
                                                         upgraded += 1;
                                                     }
-                                                    *version = ver;
+                                                    *version = if specific {
+                                                        String::from("=") + &ver
+                                                    } else {
+                                                        ver
+                                                    };
                                                 }
                                             }
                                             Err(e) => println!("{}", e),
